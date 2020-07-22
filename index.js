@@ -24,8 +24,8 @@ const resolvers = {
     Query: {
         async getData() {
             try {
-                const userData = await User.find();
-                return userData;
+                const data = await User.find();
+                return data;
             } catch (err) {
                 throw new Error(err);
             }
@@ -39,11 +39,12 @@ const server = new ApolloServer({
 });
 
 // Conecting with MongoDB Database
-mongoose.connect(MONGODB, { useNewUrlParser: true })
+mongoose
+    .connect(MONGODB, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log("MongoDB Connected");
         return server.listen({ port: 5000 });
     })
     .then((res) => {
-        console.log(`Server running ar ${res.url}`)
+        console.log(`Server running at ${res.url}`)
     });
