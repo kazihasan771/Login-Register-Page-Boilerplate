@@ -6,13 +6,13 @@ const User = require("../../models/User");
 const { SECRET_KEY } = require("../../config");
 const { validateRegisterInput, validateLoginInput } = require("../../util/validators");
 
-function generateToken(user){
+function generateToken(user) {
     return jwt.sign({
         username: user.username,
         email: user.email
-    }, 
-    SECRET_KEY, 
-    { expiresIn: "1h" });
+    },
+        SECRET_KEY,
+        { expiresIn: "1h" });
 }
 
 
@@ -30,27 +30,28 @@ module.exports = {
 
     Mutation: {
 
-        async login(_, {username, password}){
-
+        async login(_, { username, password }) {
+            // validation of user data
             const { errors, valid } = validateLoginInput(username, password);
-            if(!valid){
-                throw new UserInputError("Errors" , { errors });
+            if (!valid) {
+                throw new UserInputError("Errors", { errors });
             }
-
-            const user =  await User.findOne({ username });
-            if(!user){
+            // check if user is existing
+            const user = await User.findOne({ username });
+            if (!user) {
                 errors.general = " User not found ";
-                throw new UserInputError("User not found" , {errors});
-                console.log("User not found");
+                throw new UserInputError("User not found", { errors });
+                //console.log("User not found");
             }
-            console.log(password);
-            console.log(user.password);
+            //console.log(password);
+            //console.log(user.password);
+            // 
             const match = await bcrypt.compare(password, user.password);
             console.log(match);
-            if(!match){
+            if (!match) {
                 errors.general = "Passwords do not match";
-                throw new UserInputError("Passwords do not match", {errors});
-                console.log("user.password did not match");
+                throw new UserInputError("Passwords do not match", { errors });
+               // console.log("user.password did not match");
             }
 
             const token = generateToken(user);
@@ -68,7 +69,7 @@ module.exports = {
             },
         ) {
             //Validate User Data
-            const { valid, errors } = validateRegisterInput(username, email, password, confirmPassword);
+            const { valid, errors } = validateRegisterInput(name, username, email, password, confirmPassword);
             if (!valid) {
                 throw new UserInputError("Erorrs", { errors });
             }
@@ -91,7 +92,6 @@ module.exports = {
                 username,
                 email,
                 password,
-                createdAt: new Date().toISOString()
             });
 
             const res = await newUser.save();
